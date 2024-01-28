@@ -1,4 +1,6 @@
-wallpapers
+wallpapers/*.png
+wallpapers/*.jpg
+
 colors.json
 style.css
 scss/_colors.scss
