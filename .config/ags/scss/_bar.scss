@@ -1,0 +1,38 @@
+.bar {
+    background-color: transparent($surface);
+    color: $on-surface;
+    //border-radius: 0 0 30px 30px;
+}
+.bar-element {
+    border-radius: 9999px; 
+    background-color: $secondary-container;
+    color: $on-secondary-container;
+}
+.bar-element-secondary {
+    border-radius: 9999px;
+    background-color: $tertiary-container;
+    color: $on-tertiary-container;
+}
+.corner {
+    background-color: transparent($surface);
+    color: $on-surface;
+    border-radius: $rounding;
+}
+
+.workspace {
+    border-radius: 9999px; 
+}
+
+.active-workspace {
+    background-color: hidden($primary);
+    color: $on-primary;
+}
+
+.music-progress {
+    color: $primary;
+}
+
+.time {
+    font-weight: bold;
+    font-size: large;
+}

@@ -1,0 +1,41 @@
+.panel-right-container {
+    background-color: transparent($surface);
+    color: $on-surface;
+    transition: 300ms cubic-bezier(0.1, 1, 0, 1);
+    min-width: 325px;
+}
+.panel-right-container-hidden > * {
+    transition: 300ms cubic-bezier(0.1, 1, 0, 1);
+    opacity: 1;
+}
+
+.panel-right-container-hidden {
+    min-width: 2px; //2 is the lowest we can go without weird behaviour
+}
+.panel-right-container-hidden > * {
+    opacity: 0;
+}
+
+.music-controls {
+    border-radius: $rounding;
+    background-color: $secondary-container;
+    color: $on-secondary-container;
+}
+.music-controls-title {
+    font-weight: bold;
+    font-size: large;
+}
+.music-controls-button {
+    border-radius: $rounding;
+    background-color: $primary;
+    color: $on-primary;
+}
+.music-controls-progress {
+    border-radius: $rounding;
+    background-color: $primary;
+    color: $on-primary;
+}
+.music-cover {
+    border-radius: $rounding;
+    background-size: contain;
+}

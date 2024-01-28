@@ -1,0 +1,42 @@
+#!/bin/sh
+
+echo "THIS SCRIPT IS NOT VERY WELL TESTED AND MAY BREAK STUFF (bug reports are still welcome :3)"
+read -p "IF YOU PROCEED YOU AKNOWLEDGE THAT YOU'VE READ THE ABOVE WARNING [y/N]" yn
+case $yn in
+        [yY] ) break;;
+        * )    exit;;
+esac
+
+# Install yay (if needed)
+#if ! command -v yay &> /dev/null
+#then
+    echo "no yay install found. installing...."    
+
+    cd "$HOME/.config/yadm"
+
+    mkdir -p setup && cd setup
+    sudo rm -f yay
+    sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
+    cd .. && sudo rm -r yay
+#else
+    echo "yay install found."
+#fi
+
+echo "Installing dependencies"
+yay -Syu --noconfirm python python-pip hyprland hyprshot aylurs-gtk-shell swww sassc mpd mpd-mrpis-bin pywal-git python-material-colors-utilities kitty
+curl -sSL https://raw.githubusercontent.com/Duckonaut/hyprload/main/install.sh | bash
+
+read -p "install and set up last.fm scrobbling? [Y/n]" yn
+case $yn in
+        [nN] ) break;;
+        * )    yay -S python-yams && yams && systemctl enable --user --now yams.service;;             
+esac
+
+read -p "install and set up music discord presence? [Y/n]" yn
+case $yn in
+        [nN] ) break;;
+        * )    yay -S mpd-discord-rpc-git && systemctl enable --user --now mpd-discord-rpc;;             
+esac
+
+
+echo "Bootstrapping done!"

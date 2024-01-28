@@ -1,0 +1,23 @@
+* {
+    all: unset
+}
+
+
+$rounding: 25px;
+
+@function transparent($c) {
+    $t: adjust-color($c, $alpha: -0.3);
+
+    @return $t
+}
+
+@function hidden($c) {
+    $t: adjust-color($c, $alpha: -1);
+
+    @return $t
+}
+
+@import 'colors';
+
+@import 'bar';
+@import 'panel_right';
