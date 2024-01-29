@@ -26,6 +26,9 @@ echo "Installing dependencies"
 yay -Syu --noconfirm python python-pip hyprland hyprshot aylurs-gtk-shell swww sassc mpd mpd-mrpis-bin pywal-git python-material-colors-utilities kitty
 curl -sSL https://raw.githubusercontent.com/Duckonaut/hyprload/main/install.sh | bash
 
+echo "Setting up dependencies"
+systemctl enable --user --now mpd
+
 read -p "install and set up last.fm scrobbling? [Y/n]" yn
 case $yn in
         [nN] ) break;;

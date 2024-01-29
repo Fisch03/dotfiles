@@ -14,7 +14,6 @@ import { PanelRight } from './panels/panel_right/panel_right.js';
 import { CornerTopleft, CornerTopright, CornerBottomleft, CornerBottomright } from './screen_corner.js';
 
 const primary_monitor = await get_setting("primary_monitor")
-console.log(primary_monitor);
 
 async function per_monitor(widget) {
     const n = Gdk.Display.get_default()?.get_n_monitors() || 1;

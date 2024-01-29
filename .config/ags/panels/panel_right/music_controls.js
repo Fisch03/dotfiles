@@ -1,5 +1,6 @@
 import Widget from 'resource:///com/github/Aylur/ags/widget.js';
 import Mpris from 'resource:///com/github/Aylur/ags/service/mpris.js';
+import * as Utils from 'resource:///com/github/Aylur/ags/utils.js'
 
 import { find_cover, find_relevant_player } from '../../utils/music.js';
 
@@ -48,6 +49,7 @@ export const MusicControls = () => {
             className: 'music-cover',
             margin: 10,
             marginBottom: 5,
+            attribute: { aspect: 1 },
             setup: widget => {
                 widget.hook(Mpris, self => {
                     const player = find_relevant_player(Mpris.players);
@@ -55,13 +57,21 @@ export const MusicControls = () => {
 
                     find_cover(player).then(cover => {
                         self.css = `background-image: url("${cover}");`
+
+                        const response = Utils.execAsync(`identify -format '%w %h' ${cover}`).then(response => {
+                            let [ width, height ] = response.split(" ");
+                            const aspect_ratio = height/width;
+                            
+                            self.attribute.aspect = aspect_ratio;
+                            self.queue_draw();
+                        });
                     })
                 }, 'player-changed');
 
                 widget.on("draw", (self, cr) => {
                     const allocation = widget.get_allocation();
                     const { width } = allocation;
-                    widget.set_size_request(0, width); //force square
+                    widget.set_size_request(width, width * self.attribute.aspect);
                 });
             }
         }),
@@ -76,23 +86,33 @@ export const MusicControls = () => {
                 hexpand: true,
                 justification: "center",
                 margin: 5,
-                setup: widget => {
-                    widget.poll(1000, self => {
-                        const player = find_relevant_player(Mpris.players);
-                        if(player == undefined) return;
-                        
-                        // Horrible Date and String manipulations :3
-                        const len  = new Date(player.length   * 1000);
-                        const prog = new Date(player.position * 1000);
+            }),
+            setup: widget => {
+                const update_times = (self) => {
+                    const player = find_relevant_player(Mpris.players);
+                    if(player == undefined) return;
 
-                        const prog_min = String(prog.getMinutes())
-                        const prog_sec = String(prog.getSeconds()).padStart(2, '0');
-                        const len_min  = String(len.getMinutes())
-                        const len_sec  = String(len.getSeconds()) .padStart(2, '0');
-                        self.label = `${prog_min}:${prog_sec}/${len_min}:${len_sec}`
-                    })
+                    if(player.length == -1 || player.position == -1) {
+                        self.visible = false;
+                        return
+                    }
+
+                    self.visible = true;
+                    
+                    // Horrible Date and String manipulations :3
+                    const len  = new Date(player.length   * 1000);
+                    const prog = new Date(player.position * 1000);
+
+                    const prog_min = String(prog.getMinutes())
+                    const prog_sec = String(prog.getSeconds()).padStart(2, '0');
+                    const len_min  = String(len.getMinutes())
+                    const len_sec  = String(len.getSeconds()) .padStart(2, '0');
+                    self.children[0].label = `${prog_min}:${prog_sec}/${len_min}:${len_sec}`
                 }
-            })
+
+                widget.poll(1000,  update_times);
+                widget.hook(Mpris, update_times, 'player-changed');
+            }
         })]
     })
 

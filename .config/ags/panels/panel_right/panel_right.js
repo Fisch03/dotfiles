@@ -33,8 +33,8 @@ export const PanelRight = (monitor = 0) => {
         exclusivity: 'exclusive',
         child: Widget.Scrollable({
             vscroll: 'never',
-           //className: 'panel-right-container panel-right-container-hidden',
-            className: 'panel-right-container',
+            className: 'panel-right-container panel-right-container-hidden',
+            //className: 'panel-right-container',
             child: Widget.Box({
                 margin: 20,
                 vertical: true,
@@ -44,7 +44,7 @@ export const PanelRight = (monitor = 0) => {
                 widget.hook(PanelService, (self, state) => {
                     if(state == undefined || state.id != PANEL_RIGHT_ID) return;
                     
-                    self.toggleClassName('panel-right-container-hidden', state.state);
+                    self.toggleClassName('panel-right-container-hidden', !state.state);
                 }, 'panel-changed')
             }
         }),

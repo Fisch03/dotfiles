@@ -34,15 +34,25 @@ export const MusicBar = () => {
                 attribute: { progress: 0 },
                 className: 'music-progress',
                 setup: widget => {
-                    widget.poll(1000, self => {
+                    const update_progress = (self) => {
                         const player = find_relevant_player(Mpris.players);
                         if(player == undefined) return;
 
+                        if(player.length == -1 || player.position == -1) {
+                            self.visible = false;
+                            return
+                        }
+
+                        self.visible = true;
                         let progress_old = self.attribute.progress
                         self.attribute.progress = Math.max(player.position / player.length, 0);
     
                         if(progress_old != self.attribute.progress) self.queue_draw();
-                    })
+                    }
+
+                    widget.poll(1000,  update_progress);
+                    widget.hook(Mpris, update_progress, 'player-changed');
+
                     widget.on("draw", (self, cr) => {
                         function chord_len_at_d(d, r) {
                             return 2 * Math.sqrt(Math.pow(r, 2) - Math.pow(d, 2));
