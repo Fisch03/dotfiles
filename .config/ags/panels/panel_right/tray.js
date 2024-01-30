@@ -21,8 +21,14 @@ export const Tray = () => {
             hexpand: true,
             margin: 10,
             setup: widget => {
-                widget.bind('children', SystemTray, 'items', i => i.map(SysTrayItem))
+                widget.bind('children', SystemTray, 'items', i => i.map(SysTrayItem));
             }
-        })
+        }),
+
+        setup: widget => {
+            widget.hook(SystemTray, self => {
+                self.visible = SystemTray.items.length != 0;
+            })
+        }
     })
 }

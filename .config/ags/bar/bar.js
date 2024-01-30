@@ -30,6 +30,7 @@ export const Bar = (monitor = 0, is_primary = true) => {
         exclusivity: 'exclusive',
         child: Widget.CenterBox({
             margin: 10,
+            marginTop: 9,
             start_widget: left_modules,
             center_widget: Workspaces(monitor),
             end_widget: right_modules

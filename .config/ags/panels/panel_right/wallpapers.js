@@ -4,7 +4,7 @@ import { changeWallpaper } from '../../utils/style.js';
 export const Wallpapers = () => {
     return Widget.Box({
         hexpand: true,
-        marginTop: 10,
+        marginBottom: 10,
         children: [
             Widget.Button({
                 hexpand: true,

@@ -4,6 +4,8 @@
 
 
 $rounding: 25px;
+$rounding-medium: 22px;
+$rounding-small: 10px;
 
 @function transparent($c) {
     $t: adjust-color($c, $alpha: -0.3);
@@ -18,6 +20,24 @@ $rounding: 25px;
 }
 
 @import 'colors';
+
+@import 'common';
+
+
+
+
+.title {
+    font-weight: bold;
+    font-size: large;
+}
+.title-small {
+    font-weight: bold;
+    font-size: medium;
+}
+
+.separator {
+    border-bottom: 1px solid transparent($outline);
+}
 
 @import 'bar';
 @import 'panel_right';

@@ -2,7 +2,7 @@ import Widget from 'resource:///com/github/Aylur/ags/widget.js';
 import Mpris from 'resource:///com/github/Aylur/ags/service/mpris.js';
 import * as Utils from 'resource:///com/github/Aylur/ags/utils.js'
 
-import { find_cover, find_relevant_player } from '../../utils/music.js';
+import { find_cover, get_relevant_player } from '../../utils/music.js';
 
 export const MusicControls = () => {
     const Title = () => Widget.Box({
@@ -12,13 +12,13 @@ export const MusicControls = () => {
         vertical: true,
         children: [
             Widget.Label({
-                className: 'music-controls-title',
+                className: 'title',
                 wrap: true,
                 //truncate: 'end',
                 justification: 'center',
                 setup: widget => {
                     widget.hook(Mpris, self => {
-                        const player = find_relevant_player(Mpris.players);
+                        const player = get_relevant_player(Mpris.players);
                         if(player == undefined) return;
 
                         self.label = player['track-title'];
@@ -32,8 +32,15 @@ export const MusicControls = () => {
                 justification: 'center',
                 setup: widget => {
                     widget.hook(Mpris, self => {
-                        const player = find_relevant_player(Mpris.players);
+                        const player = get_relevant_player(Mpris.players);
                         if(player == undefined) return;
+
+                        if(player['track-artists'].length == 0 || player['track-artists'][0] == "") {
+                            self.visible = false;
+                            return;
+                        }
+
+                        self.visible = true;
 
                         self.label = `by ${player['track-artists'].join(', ')}`;
                     }, 'player-changed');
@@ -52,13 +59,19 @@ export const MusicControls = () => {
             attribute: { aspect: 1 },
             setup: widget => {
                 widget.hook(Mpris, self => {
-                    const player = find_relevant_player(Mpris.players);
+                    const player = get_relevant_player(Mpris.players);
                     if(player == undefined) return;
 
                     find_cover(player).then(cover => {
+                        if(cover == undefined) {
+                            self.visible = false;
+                            return;
+                        }
+
+                        self.visible = true;
                         self.css = `background-image: url("${cover}");`
 
-                        const response = Utils.execAsync(`identify -format '%w %h' ${cover}`).then(response => {
+                        Utils.execAsync(`identify -format '%w %h' ${cover}`).then(response => {
                             let [ width, height ] = response.split(" ");
                             const aspect_ratio = height/width;
                             
@@ -81,7 +94,7 @@ export const MusicControls = () => {
             marginBottom: 13,
             marginRight: 18,
             widthRequest: 80,
-            className: 'music-controls-progress',
+            className: 'primary-element',
             child: Widget.Label({
                 hexpand: true,
                 justification: "center",
@@ -89,7 +102,7 @@ export const MusicControls = () => {
             }),
             setup: widget => {
                 const update_times = (self) => {
-                    const player = find_relevant_player(Mpris.players);
+                    const player = get_relevant_player(Mpris.players);
                     if(player == undefined) return;
 
                     if(player.length == -1 || player.position == -1) {
@@ -122,22 +135,30 @@ export const MusicControls = () => {
         marginBottom: 5,
         children: [
             Widget.Button({
-                className: 'music-controls-button',
+                className: 'primary-button',
                 margin: 5,
                 child: Widget.Icon({
                     margin: 10,
                     size: 20,
                     icon: 'media-skip-backward',
                 }),
+                setup: widget => {
+                    widget.hook(Mpris, self => {
+                        const player = get_relevant_player(Mpris.players);
+                        if(player == undefined) return;
+
+                        self.visible = player['can-go-prev'];
+                    })
+                },
                 onPrimaryClick: () => {
-                    const player = find_relevant_player(Mpris.players);
+                    const player = get_relevant_player(Mpris.players);
                     if(player == undefined) return;
 
                     player.previous();
                 }
             }),
             Widget.Button({
-                className: 'music-controls-button',
+                className: 'primary-button',
                 margin: 5,
                 child: Widget.Icon({
                     margin: 10,
@@ -146,29 +167,37 @@ export const MusicControls = () => {
                 }),
                 setup: widget => {
                     widget.hook(Mpris, self => {
-                        const player = find_relevant_player(Mpris.players);
+                        const player = get_relevant_player(Mpris.players);
                         if(player == undefined) return;
 
                         self.child.icon = player['play-back-status'] == "Playing" ? 'media-playback-pause' : 'media-playback-start';
                     })
                 },
                 onPrimaryClick: () => {
-                    const player = find_relevant_player(Mpris.players);
+                    const player = get_relevant_player(Mpris.players);
                     if(player == undefined) return;
 
                     player.playPause();
                 }
             }),
             Widget.Button({
-                className: 'music-controls-button',
+                className: 'primary-button',
                 margin: 5,
                 child: Widget.Icon({
                     margin: 10,
                     size: 20,
                     icon: 'media-skip-forward',
                 }),
+                setup: widget => {
+                    widget.hook(Mpris, self => {
+                        const player = get_relevant_player(Mpris.players);
+                        if(player == undefined) return;
+
+                        self.visible = player['can-go-next'];
+                    })
+                },
                 onPrimaryClick: () => {
-                    const player = find_relevant_player(Mpris.players);
+                    const player = get_relevant_player(Mpris.players);
                     if(player == undefined) return;
 
                     player.next();
@@ -178,7 +207,7 @@ export const MusicControls = () => {
     })
 
     return Widget.Box({
-        className: 'music-controls',
+        className: 'secondary-container',
         vertical: true,
         children: [
             Title(),
@@ -187,7 +216,7 @@ export const MusicControls = () => {
         ],
         setup: widget => {
             widget.hook(Mpris, self => {
-                const player = find_relevant_player(Mpris.players);
+                const player = get_relevant_player(Mpris.players);
                 self.visible = player != undefined
             }, 'player-changed');
         }

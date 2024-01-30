@@ -2,7 +2,7 @@ import Mpris from 'resource:///com/github/Aylur/ags/service/mpris.js';
 import Widget from 'resource:///com/github/Aylur/ags/widget.js';
 import Gtk from "gi://Gtk";
 
-import { find_relevant_player } from '../utils/music.js';
+import { get_relevant_player } from '../utils/music.js';
 
 export const MusicBar = () => {
     return Widget.Box({
@@ -19,13 +19,14 @@ export const MusicBar = () => {
                 vpack: "center",
                 setup: widget => {
                     widget.hook(Mpris, label => {
-                        const player = find_relevant_player(Mpris.players);
+                        const player = get_relevant_player(Mpris.players);
                         if(player == undefined) {
                             label.label = "Nothing playing right now!"
                             return;
                         }
                         
-                        label.label = `${player['track-artists'].join(', ')} • ${player['track-title']}`
+                        const seperator = (player['track-artists'].length > 0 &&  player['track-artists'][0] != "") ? ' • ' : '';
+                        label.label = `${player['track-artists'].join(', ')}${seperator}${player['track-title']}`
                     })
                 }
             }),
@@ -35,7 +36,7 @@ export const MusicBar = () => {
                 className: 'music-progress',
                 setup: widget => {
                     const update_progress = (self) => {
-                        const player = find_relevant_player(Mpris.players);
+                        const player = get_relevant_player(Mpris.players);
                         if(player == undefined) return;
 
                         if(player.length == -1 || player.position == -1) {

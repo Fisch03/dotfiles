@@ -2,8 +2,9 @@ import Widget from 'resource:///com/github/Aylur/ags/widget.js';
 
 import PanelService from '../panel_service.js'
 
-import { Wallpapers } from './wallpapers.js';
 import { MusicControls } from './music_controls.js';
+import { Wallpapers } from './wallpapers.js';
+import { NotificationList } from './notification_list.js';
 import { Tray } from './tray.js';
 
 
@@ -11,17 +12,20 @@ import { Tray } from './tray.js';
 const PANEL_RIGHT_ID = 0; // Has to be unique!
 
 export const PanelRight = (monitor = 0) => {
-    const Spacer = () => {
-        return Widget.Box({
-            vexpand: true,
-            hexpand: true
-        })
-    }
+    const Separator = () => Widget.Box({
+        hexpand: true,
+        margin: 100,
+        marginTop: 10,
+        marginBottom: 10,
+        className: 'separator',
+    })
 
     const PanelContents = [
         MusicControls(),
+        Separator(),
+        NotificationList(),
+        Separator(),
         Wallpapers(),
-        Spacer(),
         Tray()
     ]
 
@@ -65,7 +69,7 @@ export const PanelRightExpander = (monitor = 0) => {
                     widget.hook(PanelService, (self, state) => {
                         if(state == undefined || state.id != PANEL_RIGHT_ID) return;
                         
-                        self.icon = state.state ? 'go-previous' : 'go-next';
+                        self.icon = state.state ? 'go-next' : 'go-previous';
                     }, 'panel-changed')
                 }
             })

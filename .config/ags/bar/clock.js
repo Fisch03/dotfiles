@@ -8,7 +8,7 @@ export const Clock = () => {
 //        vertical: true,
         children: [
             Widget.Label({
-                className: 'time',
+                className: 'title',
                 marginLeft: 10,
                 vpack: 'center',
                 setup: widget => {
