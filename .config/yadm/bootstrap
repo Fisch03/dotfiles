@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 echo "THIS SCRIPT IS NOT VERY WELL TESTED AND MAY BREAK STUFF (bug reports are still welcome :3)"
 read -p "IF YOU PROCEED YOU AKNOWLEDGE THAT YOU'VE READ THE ABOVE WARNING [y/N]" yn
@@ -8,8 +9,8 @@ case $yn in
 esac
 
 # Install yay (if needed)
-#if ! command -v yay &> /dev/null
-#then
+if ! command -v yay &> /dev/null
+then
     echo "no yay install found. installing...."    
 
     cd "$HOME/.config/yadm"
@@ -18,12 +19,13 @@ esac
     sudo rm -f yay
     sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
     cd .. && sudo rm -r yay
-#else
+else
     echo "yay install found."
-#fi
+fi
 
 echo "Installing dependencies"
-yay -Syu --noconfirm python python-pip hyprland hyprshot aylurs-gtk-shell swww sassc mpd mpd-mrpis-bin pywal-git python-material-colors-utilities kitty
+yay -Syu --noconfirm python python-pip hyprland hyprshot aylurs-gtk-shell swww sassc mpd mpd-mrpis-bin pywal-git python-material-colors-utilities kitty nautilus otf-monaspace-nerd zsh
+
 curl -sSL https://raw.githubusercontent.com/Duckonaut/hyprload/main/install.sh | bash
 
 echo "Setting up dependencies"
@@ -41,5 +43,9 @@ case $yn in
         * )    yay -S mpd-discord-rpc-git && systemctl enable --user --now mpd-discord-rpc;;             
 esac
 
+echo "Setting up oh my zsh"
+set +e
+sh -c "$(curl -fsSL https://install.ohmyz.sh/)"
+set -e
 
 echo "Bootstrapping done!"
