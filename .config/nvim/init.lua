@@ -1,4 +1,4 @@
------------------ CONFIG ----------------- 
+---------------- CONFIG -----------------
 
 -- set leader to be space
 vim.keymap.set("n", "<Space>", "<Nop>", { silent = true })
@@ -62,31 +62,46 @@ vim.opt.diffopt:append('iwhite')
 vim.opt.diffopt:append('algorithm:histogram')
 vim.opt.diffopt:append('indent-heuristic')
 
------------------ VISUAL ----------------- 
+-- make gitgutter changes appear sooner
+vim.opt.updatetime = 100
 
-vim.api.nvim_set_hl(0, "NormalFloat", { bg="NONE" } )
-vim.api.nvim_set_hl(0, "Pmenu", { bg="NONE" })
-vim.api.nvim_set_hl(0, "SignColumn", { bg="NONE" })
+----------------- VISUAL -----------------
 
+-- clear backgrounds for transparency
+vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE" })
+vim.api.nvim_set_hl(0, "Pmenu", { bg = "NONE" })
+vim.api.nvim_set_hl(0, "SignColumn", { bg = "NONE" })
+
+-- selection
+vim.api.nvim_set_hl(0, "CursorLine", { bold = true })
+
+-- borders
 local border_style = "rounded"
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-  vim.lsp.handlers.hover, {
-    border = border_style
-  }
+    vim.lsp.handlers.hover, {
+        border = border_style
+    }
 )
 
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-  vim.lsp.handlers.signature_help, {
-    border = border_style
-  }
+    vim.lsp.handlers.signature_help, {
+        border = border_style
+    }
 )
 
-vim.diagnostic.config{
-  float={border=border_style}
+vim.diagnostic.config {
+    float = { border = border_style }
 }
 
------------------ KEYBINDS ----------------- 
+-- keep diagnostics while in insert mode
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+    vim.lsp.diagnostic.on_publish_diagnostics, {
+        update_in_insert = true,
+    }
+)
+
+----------------- KEYBINDS -----------------
 
 -- ctrl+j and ctrl+k as esc
 vim.keymap.set('n', '<C-j>', '<Esc>')
@@ -122,10 +137,26 @@ vim.keymap.set('i', '<left>', '<nop>')
 vim.keymap.set('i', '<right>', '<nop>')
 
 -- let the left and right arrows be useful: they can switch buffers
-vim.keymap.set('n', '<left>', ':bp<cr>')
-vim.keymap.set('n', '<right>', ':bn<cr>')
+vim.keymap.set('n', '<left>', ':bp<cr>', { silent = true })
+vim.keymap.set('n', '<right>', ':bn<cr>', { silent = true })
 
------------------ PLUGINS ----------------- 
+-- clear search highlight automatically
+vim.keymap.set('', '<CR>', ':noh<CR><CR>', { silent = true })
+vim.keymap.set('n', 'i', ':noh<CR>i', { silent = true })
+
+-- move to next underscore
+vim.keymap.set('n', '<leader>u', 'ct_')
+
+----------------- AUTOCOMMANDS -----------------
+vim.api.nvim_create_autocmd(
+    'TextYankPost',
+    {
+        pattern = '*',
+        command = 'silent! lua vim.highlight.on_yank({ timeout = 500 })'
+    }
+)
+
+----------------- PLUGINS -----------------
 
 -- lazy bootstrapping
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -141,75 +172,107 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- plugins
 require("lazy").setup({
-	{
-		'itchyny/lightline.vim',
-		lazy = false, -- also load at start since it's UI
-	    dependencies = { "mengelbrecht/lightline-bufferline" },
-		config = function()
-			-- no need to also show mode in cmd line when we have bar
-			vim.o.showmode = false
-			vim.g.lightline = {
-                -- separator = { left = '', right = '' },
-                separator = { left = '', right = '' },
-                -- subseparator = { left = '', right = '' },
-                -- subseparator = { left = '', right = '' },
-                colorscheme = 'lightline_transparent',
-				active = {
-					left = {
-						{ 'mode', 'paste' },
-						{ 'readonly', 'filename', 'modified' }
-					},
-					right = {
-						{ 'lineinfo' },
-						{ 'percent' },
-						{ 'fileencoding', 'filetype' }
-					},
-				},
-                tabline = {
-                    left = {
-                        { 'buffers' }
-                    },
-                    right = {}
-                },
-                component_expand = {
-                    buffers = 'lightline#bufferline#buffers'
-                },
-                component_type = {
-                    buffers = 'tabsel'
-                }
-			}
-
-            vim.o.showtabline = 2
-		end
-	},
+    ----- VISUAL -----
     {
-        -- quick navigation
-        "ggandor/leap.nvim",
+        "nvim-lualine/lualine.nvim",
+        dependencies = { 'nvim-tree/nvim-web-devicons' },
         config = function()
-            vim.keymap.set('n', 's', function ()
-                require('leap').leap { target_windows = { vim.api.nvim_get_current_win() } }
-            end)
+            local lualine_transparent = require('lualine_transparent')
+
+            require('lualine').setup({
+                options = {
+                    theme = lualine_transparent,
+                    section_separators = { left = '', right = '' },
+                    component_separators = { left = '|', right = '|' },
+                    disabled_filetypes = { 'Trouble' }
+                },
+                sections = {
+                    lualine_a = { 'mode' },
+                    lualine_b = { 'filename' },
+                    lualine_c = {},
+                    lualine_x = {},
+                    lualine_y = { 'diagnostics' },
+                    lualine_z = { 'location' }
+                },
+                tabline = {
+                    lualine_a = { 'buffers' },
+                    lualine_b = {},
+                    lualine_c = {},
+                    lualine_x = { 'encoding' },
+                    lualine_y = { 'diff' },
+                    lualine_z = { 'branch' }
+                }
+            })
         end
     },
     {
-        -- automatically move to project root
-        "notjedi/nvim-rooter.lua",
+        -- lsp progress
+        "j-hui/fidget.nvim",
+        opts = {
+            notification = {
+                window = {
+                    border = border_style,
+                    align = "top"
+                }
+            }
+        },
+    },
+    {
+        "folke/trouble.nvim",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        event = "LspAttach",
+        opts = {
+            auto_open = true,
+            height = 8,
+        },
+
+    },
+    {
+        -- git diff markers
+        "lewis6991/gitsigns.nvim",
         config = function()
-            require('nvim-rooter').setup()
+            vim.api.nvim_set_hl(0, "GitSignsAdd", { bg = "NONE" })
+            vim.api.nvim_set_hl(0, "GitSignsChange", { bg = "NONE" })
+            vim.api.nvim_set_hl(0, "GitSignsDelete", { bg = "NONE" })
+
+            vim.api.nvim_set_hl(0, "GitSignsAdd", { ctermfg = "Green" })
+            vim.api.nvim_set_hl(0, "GitSignsChange", { ctermfg = "DarkGray" })
+            vim.api.nvim_set_hl(0, "GitSignsDelete", { ctermfg = "Red" })
+
+            require('gitsigns').setup()
         end
+    },
+    {
+        -- git ui
+        "kdheepak/lazygit.nvim",
+        cmd = "LazyGit",
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+        },
     },
     {
         -- file search
-        "nvim-telescope/telescope.nvim", branch = '0.1.x',
+        "nvim-telescope/telescope.nvim",
+        branch = '0.1.x',
         keys = {
             "<leader>ff",
             "<leader>fg",
             "<leader>fb",
             "<leader>fh"
         },
-        dependencies = { 'nvim-lua/plenary.nvim' },
+        dependencies = {
+            'nvim-lua/plenary.nvim',
+            'nvim-treesitter/nvim-treesitter',
+            'nvim-tree/nvim-web-devicons',
+            {
+                'nvim-telescope/telescope-fzf-native.nvim',
+                build = 'make',
+                config = function()
+                    require('telescope').load_extension('fzf')
+                end
+            },
+        },
         config = function()
             local builtin = require('telescope.builtin')
             vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
@@ -218,72 +281,169 @@ require("lazy").setup({
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
         end
     },
+
+    ----- LSP / COMPLETION -----
     {
-        "neovim/nvim-lspconfig", 
+        -- bracket autoclosing
+        "m4xshen/autoclose.nvim",
         config = function()
-            require('lspconfig.ui.windows').default_options = {
-                border = border_style
-            }
-
-            local lspconfig = require('lspconfig') 
-
-            lspconfig.rust_analyzer.setup {
-                settings = {
-                    ["rust-analyzer"] = {
-                        cargo = {
-                            allFeatures = true,
-                        },
-                        imports = {
-                            group = {
-                                enable = false
-                            },
-                        },
-                    }
+            require('autoclose').setup({
+                options = {
+                    disable_when_touch = true,
+                    pair_spaces = true
                 }
-            }
-            
-            lspconfig.ccls.setup {}
-
-            vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
-			vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
-			vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
-			vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
-
-            -- Use LspAttach autocommand to only map the following keys
-            -- after the language server attaches to the current buffer
-            vim.api.nvim_create_autocmd('LspAttach', {
-                group = vim.api.nvim_create_augroup('UserLspConfig', {}),
-                callback = function(ev)
-                -- Enable completion triggered by <c-x><c-o>
-                vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
-                -- Buffer local mappings.
-                -- See `:help vim.lsp.*` for documentation on any of the below functions
-                local opts = { buffer = ev.buf }
-                vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-                vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-                vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-                vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-                -- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-                -- vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
-                -- vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
-                -- vim.keymap.set('n', '<space>wl', function()
-                --    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-                --end, opts)
-                --vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
-                vim.keymap.set('n', '<leader>r', vim.lsp.buf.rename, opts)
-                vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
-                vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-              end,
             })
         end
     },
     {
+        -- function signatures
+        "ray-x/lsp_signature.nvim",
+        dependencies = { "neovim/nvim-lspconfig" },
+        event = "LspAttach",
+        config = function()
+            require('lsp_signature').setup({
+                doc_lines = 0,
+                hint_enable = false
+            })
+        end
+    },
+    {
+        "aznhe21/actions-preview.nvim",
+        dependencies = { "nvim-telescope/telescope.nvim" },
+        event = "LspAttach",
+        config = function()
+            require('actions-preview').setup()
+
+            vim.keymap.set({ 'n', 'v' }, '<leader>a', require('actions-preview').code_actions)
+        end
+
+    },
+    {
+        "williamboman/mason.nvim",
+        dependencies = {
+            "neovim/nvim-lspconfig",
+            "williamboman/mason-lspconfig.nvim",
+        },
+        config = function()
+            require('mason').setup()
+
+            require('lspconfig.ui.windows').default_options = {
+                border = border_style
+            }
+
+            vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
+            vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
+            vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
+            vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
+
+            local on_attach = function(_, bufnr)
+                -- Enable completion triggered by <c-x><c-o>
+                vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
+
+                vim.api.nvim_create_autocmd('BufWritePre', {
+                    buffer = bufnr,
+                    callback = function()
+                        vim.lsp.buf.format({ async = false })
+                    end
+                })
+
+                local opts = { buffer = bufnr }
+                vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+                vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+                vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+                vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+                vim.keymap.set('n', '<leader>r', vim.lsp.buf.rename, opts)
+                -- vim.keymap.set({ 'n', 'v' }, '<leader>a', vim.lsp.buf.code_action, opts)
+
+                vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+            end
+
+            local lspconfig = require('lspconfig')
+
+            -- ccls not in mason
+            lspconfig.ccls.setup {
+                on_attach = on_attach,
+            }
+
+            local mason_lspconfig = require('mason-lspconfig')
+            mason_lspconfig.setup({
+                ensure_installed = {
+                    "rust_analyzer",
+                    "lua_ls"
+                }
+            })
+
+            mason_lspconfig.setup_handlers({
+                function(server_name)
+                    lspconfig[server_name].setup {
+                        on_attach = on_attach,
+                    }
+                end,
+
+                ["rust_analyzer"] = function()
+                    lspconfig.rust_analyzer.setup {
+                        on_attach = on_attach,
+                        settings = {
+                            ["rust_analyzer"] = {
+                                cargo = {
+                                    allFeatures = true,
+                                },
+                                imports = {
+                                    group = {
+                                        enable = false
+                                    },
+                                },
+                            }
+                        }
+                    }
+                end,
+
+                ["lua_ls"] = function()
+                    lspconfig.lua_ls.setup {
+                        on_attach = on_attach,
+                        settings = {
+                            Lua = {
+                                diagnostics = {
+                                    globals = {
+                                        'vim'
+                                    }
+                                },
+                                workspace = {
+                                    library = vim.api.nvim_get_runtime_file("", true)
+                                },
+                                telemetry = {
+                                    enable = false
+                                }
+                            }
+                        }
+                    }
+                end
+            })
+        end
+    },
+
+    ----- COMPLETION -----
+    {
+        "Saecki/crates.nvim",
+        event = "BufRead Cargo.toml",
+        dependencies = { "hrsh7th/nvim-cmp" },
+        config = function()
+            require('crates').setup()
+        end
+    },
+    {
+        "micangl/cmp-vimtex",
+        dependencies = { "hrsh7th/nvim-cmp" },
+        ft = { "tex" },
+    },
+    {
+        -- copilot
         "zbirenbaum/copilot.lua",
-        cmd = "Copilot",
         event = "InsertEnter",
+        cmd = "Copilot",
         config = function()
             require('copilot').setup({
+                -- but only really used together with cmp
                 suggestion = { enabled = false },
                 panel = { enabled = false }
             })
@@ -294,8 +454,15 @@ require("lazy").setup({
         "hrsh7th/nvim-cmp",
         event = "InsertEnter",
         dependencies = {
-            "hrsh7th/cmp-path",
+            "hrsh7th/vim-vsnip", -- stuff breaks sometimes otherwise...
+
+            "hrsh7th/cmp-cmdline",
+            "dmitmel/cmp-cmdline-history",
+
+            "FelipeLema/cmp-async-path",
+            "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-nvim-lsp",
+            "petertriho/cmp-git",
             {
                 "zbirenbaum/copilot-cmp",
                 config = function()
@@ -319,11 +486,16 @@ require("lazy").setup({
                     -- ['<C-e>'] = cmp.mapping.abort(),
                     ['<Tab>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
                 }),
-                sources = cmp.config.sources({
-                    { name = 'copilot' },
-                    { name = 'nvim_lsp' },
-                    { name = 'path' },
-                }),
+                sources = cmp.config.sources(
+                    {
+                        { name = 'copilot' },
+                        { name = 'nvim_lsp' },
+                        { name = 'async_path' },
+                    },
+                    {
+                        { name = 'buffer' },
+                    }
+                ),
                 window = {
                     completion = {
                         border = border_style,
@@ -334,73 +506,131 @@ require("lazy").setup({
                 }
             })
 
-            -- Enable completing paths in :
-			cmp.setup.cmdline(':', {
-				sources = cmp.config.sources({
-					{ name = 'path' }
-				})
-			})
-        end
-    },
-    {
-        -- function signatures
-        "ray-x/lsp_signature.nvim",
-        config = function()
-            require('lsp_signature').setup({
-                doc_lines = 0,
-                hint_enable = false
+            -- completions for git commits
+            cmp.setup.filetype('gitcommit', {
+                sources = cmp.config.sources({
+                    { name = 'git' },
+                }, {
+                    { name = 'buffer' },
+                })
             })
-        end
-    },
-    {
-        "j-hui/fidget.nvim",
-        opts = {
-            window = {
-                border = border_style
-            }
-        },
-        config = function()
-            require('fidget').setup()
-        end
-    },
-    {
-        "m4xshen/autoclose.nvim", 
-        config = function()
-            require('autoclose').setup({
-                options = {
-                    disable_when_touch = true,
-                    pair_spaces = true
+
+            -- completions for .toml
+            cmp.setup.filetype('toml', {
+                sources = {
+                    { name = 'crates' },
+                    { name = 'async_path' },
+                    { name = 'buffer' }
                 }
             })
+
+            -- completion for .tex files
+            cmp.setup.filetype('tex', {
+                sources = {
+                    { name = 'vimtex' },
+                    { name = 'async_path' },
+                    { name = 'buffer' }
+                }
+            })
+
+            -- completions for : commands
+            cmp.setup.cmdline(':', {
+                sources = {
+                    { name = 'async_path' },
+                    { name = 'cmdline_history' }
+                }
+            })
+            -- completions for search
+            cmp.setup.cmdline('/', {
+                sources = {
+                    { name = 'buffer' },
+                    { name = 'cmdline_history' }
+                }
+            })
+            -- completions everywhere else in vim
+            for _, cmd_type in ipairs({ '?', '@' }) do
+                cmp.setup.cmdline(cmd_type, {
+                    sources = {
+                        { name = 'cmdline_history' },
+                    },
+                })
+            end
         end
     },
-    
+
     ----- LANGUAGES -----
     {
         "cespare/vim-toml",
         ft = { "toml" }
     },
     {
-        -- rust
-        "rust-lang/rust.vim",
-        ft = { "rust" },
+        'plasticboy/vim-markdown',
+        ft = { "markdown" },
         config = function()
-            vim.g.rustfmt_autosave = 1
-			vim.g.rustfmt_emit_files = 1
-			vim.g.rustfmt_fail_silently = 0
-			vim.g.rust_clip_command = 'wl-copy'
+            -- never ever fold!
+            vim.g.vim_markdown_folding_disabled = 1
+            -- support front-matter in .md files
+            vim.g.vim_markdown_frontmatter = 1
+            -- 'o' on a list item should insert at same level
+            vim.g.vim_markdown_new_list_item_indent = 0
+        end
+    },
+
+    ----- MISC -----
+    {
+        -- automatically move to project root
+        "notjedi/nvim-rooter.lua",
+        config = function()
+            require('nvim-rooter').setup()
         end
     },
     {
-		'plasticboy/vim-markdown',
-		ft = { "markdown" },
-		config = function()
-			-- never ever fold!
-			vim.g.vim_markdown_folding_disabled = 1
-			-- support front-matter in .md files
-			vim.g.vim_markdown_frontmatter = 1
-			-- 'o' on a list item should insert at same level
-			vim.g.vim_markdown_new_list_item_indent = 0
-		end
-	},
+        -- comment toggle
+        "numToStr/Comment.nvim",
+        lazy = false,
+        opts = {
+            toggler = {
+                line = "<leader>cc",
+                block = "<leader>bc"
+            },
+            opleader = {
+                line = "<leader>c",
+                block = "<leader>b"
+            }
+        }
+    },
+    {
+        -- move lines
+        "matze/vim-move"
+    },
+    {
+        -- quick navigation
+        "ggandor/leap.nvim",
+        config = function()
+            vim.keymap.set('n', 's', function()
+                require('leap').leap { target_windows = { vim.api.nvim_get_current_win() } }
+            end)
+        end
+    },
+    {
+        "andweeb/presence.nvim",
+        lazy = false,
+        config = function()
+            require('presence'):setup({
+                neovim_image_text = ":3",
+
+                blacklist = {
+                    "work"
+                },
+
+                editing_text = "editing %s",
+                file_explorer_text = "browsing files",
+                git_commit_text = "committing changes",
+                plugin_manager_text = "managing plugins",
+                reading_text = "reading %s",
+                workspace_text = "working on %s",
+                line_number_text = "line %s out of %s",
+            })
+        end
+    },
 })

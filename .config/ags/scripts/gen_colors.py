@@ -69,10 +69,10 @@ pywal_dict = {
         "color0":     hexFromArgb(theme.get_surface()),
 
         "color1":     hexFromArgb(theme.get_error()),
-        "color2":     hexFromArgb(theme.get_onTertiaryContainer()),  
-        "color3":     hexFromArgb(theme.get_onPrimaryContainer()),
-        "color4":     hexFromArgb(theme.get_tertiary()),  
-        "color5":     hexFromArgb(theme.get_secondary()),
+        "color2":     hexFromArgb(theme.get_tertiaryContainer()),
+        "color3":     hexFromArgb(theme.get_secondaryContainer()),
+        "color4":     hexFromArgb(theme.get_primaryContainer()),  
+        "color5":     hexFromArgb(theme.get_onSecondary()),
         "color6":     hexFromArgb(theme.get_primary()),
 
         "color7":     hexFromArgb(theme.get_onSurface()),
@@ -80,9 +80,9 @@ pywal_dict = {
         "color8":     hexFromArgb(theme.get_outline()),
 
         "color9":      hexFromArgb(theme.get_error()), 
-        "color10":     hexFromArgb(theme.get_onTertiaryContainer()),  
-        "color11":     hexFromArgb(theme.get_onPrimaryContainer()),
-        "color12":     hexFromArgb(theme.get_tertiary()),  
+	"color10":     hexFromArgb(theme.get_onTertiaryContainer()),
+        "color11":     hexFromArgb(theme.get_onSecondaryContainer()),
+        "color12":     hexFromArgb(theme.get_onPrimaryContainer()),  
         "color13":     hexFromArgb(theme.get_secondary()),
         "color14":     hexFromArgb(theme.get_primary()),
 
