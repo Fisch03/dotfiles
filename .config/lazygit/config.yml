@@ -1,0 +1,6 @@
+gui:
+  theme:
+    activeBorderColor:
+      - cyan # primary
+      - bold
+  nerdFontsVersion: "3"

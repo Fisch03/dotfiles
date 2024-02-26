@@ -15,7 +15,10 @@
     frag = 13 # secondary 
     old = 1 # error
     new = 6 # primary
+    commit = 2 # tertiary 
 [color "status"]
     added = 6 # primary
     changed = 10 # on_tertiary_container 
     untracked = 1 # error 
+[color "decorate"]
+    tag = 13 # secondary 

@@ -69,7 +69,7 @@ pywal_dict = {
         "color0":     hexFromArgb(theme.get_surface()),
 
         "color1":     hexFromArgb(theme.get_error()),
-        "color2":     hexFromArgb(theme.get_tertiaryContainer()),
+        "color2":     hexFromArgb(theme.get_tertiary()),
         "color3":     hexFromArgb(theme.get_secondaryContainer()),
         "color4":     hexFromArgb(theme.get_primaryContainer()),  
         "color5":     hexFromArgb(theme.get_onSecondary()),
