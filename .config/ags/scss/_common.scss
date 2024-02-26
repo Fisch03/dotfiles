@@ -1,0 +1,62 @@
+.primary-container {
+    background-color: $primary-container;
+    color: $on-primary-container;
+    border-radius: $rounding-medium;
+}
+.secondary-container {
+    background-color: $secondary-container;
+    color: $on-secondary-container;
+    border-radius: $rounding-medium;
+}
+.tertiary-container {
+    background-color: $tertiary-container;
+    color: $on-tertiary-container;
+    border-radius: $rounding-medium;   
+}
+
+.primary-element {
+    background-color: $primary;
+    color: $on-primary;
+    border-radius: $rounding-medium;
+}
+.secondary-element {
+    background-color: $secondary;
+    color: $on-secondary;
+    border-radius: $rounding-medium;
+}
+.tertiary-element {
+    background-color: $tertiary;
+    color: $on-tertiary;
+    border-radius: $rounding-medium;
+}
+
+@mixin button($color) {
+    &:hover {
+        background-color: transparent($color);
+    }
+}
+
+.primary-button {
+    background-color: $primary;
+    color: $on-primary;
+    border-radius: $rounding-medium;
+    @include button($primary);
+}
+.secondary-button {
+    background-color: $secondary;
+    color: $on-secondary;
+    border-radius: $rounding-medium;
+    @include button($secondary);
+}
+.tertiary-button {
+    background-color: $tertiary;
+    color: $on-tertiary;
+    border-radius: $rounding-medium;
+    @include button($tertiary);
+}
+.close-button {
+    background-color: $error;
+    color: $on-error;
+    border-radius: $rounding-medium;
+    @include button($error);
+}

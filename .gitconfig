@@ -1,0 +1,21 @@
+[include]
+    path = .gitconfig_local
+
+[core]
+	editor = nvim
+
+[color]
+    ui = auto
+[color "branch"]
+    current = 6 # primary
+    local = 10 # on_tertiary_container 
+    remote = 1 # error
+[color "diff"]
+    meta = 7 bold # on_surface 
+    frag = 13 # secondary 
+    old = 1 # error
+    new = 6 # primary
+[color "status"]
+    added = 6 # primary
+    changed = 10 # on_tertiary_container 
+    untracked = 1 # error 

@@ -4,7 +4,7 @@ import * as Utils from 'resource:///com/github/Aylur/ags/utils.js'
 
 import { find_cover, get_relevant_player } from '../../utils/music.js';
 
-export const MusicControls = () => {
+export const MusicControls = (linked_separator) => {
     const Title = () => Widget.Box({
         marginTop: 8,
         marginLeft: 10,
@@ -218,6 +218,7 @@ export const MusicControls = () => {
             widget.hook(Mpris, self => {
                 const player = get_relevant_player(Mpris.players);
                 self.visible = player != undefined
+                linked_separator.visible = self.visible;
             }, 'player-changed');
         }
     })

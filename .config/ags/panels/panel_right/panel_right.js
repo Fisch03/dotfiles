@@ -20,9 +20,11 @@ export const PanelRight = (monitor = 0) => {
         className: 'separator',
     })
 
+    const music_controls_separator = Separator();
+
     const PanelContents = [
-        MusicControls(),
-        Separator(),
+        MusicControls(music_controls_separator),
+        music_controls_separator,
         NotificationList(),
         Separator(),
         Wallpapers(),

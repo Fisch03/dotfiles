@@ -75,6 +75,10 @@ vim.api.nvim_set_hl(0, "SignColumn", { bg = "NONE" })
 -- selection
 vim.api.nvim_set_hl(0, "CursorLine", { bold = true })
 
+-- more readable diagnostics
+vim.api.nvim_set_hl(0, "DiagnosticInfo", { ctermfg = 7 })
+vim.api.nvim_set_hl(0, "DiagnosticWarn", { ctermfg = 6 })
+
 -- borders
 local border_style = "rounded"
 

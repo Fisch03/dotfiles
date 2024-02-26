@@ -11,7 +11,9 @@ await changeWallpaper();
 
 import { Bar } from './bar/bar.js'
 import { PanelRight } from './panels/panel_right/panel_right.js';
+import { NotificationPopup } from './notification_popup.js';
 import { CornerTopleft, CornerTopright, CornerBottomleft, CornerBottomright } from './screen_corner.js';
+
 
 const primary_monitor = await get_setting("primary_monitor")
 
@@ -31,7 +33,8 @@ const Windows = [
     per_monitor(CornerTopleft),
     per_monitor(CornerTopright),
 //    per_monitor(CornerBottomleft),
-    per_monitor(CornerBottomright)
+    per_monitor(CornerBottomright),
+    NotificationPopup(primary_monitor)
 ]
 
 export default {

@@ -24,7 +24,7 @@ else
 fi
 
 echo "Installing dependencies"
-yay -Syu --noconfirm python python-pip hyprland hyprshot aylurs-gtk-shell swww sassc mpd mpd-mrpis-bin pywal-git python-material-colors-utilities kitty nautilus otf-monaspace-nerd zsh
+yay -Syu --noconfirm python python-pip hyprland hyprshot aylurs-gtk-shell swww sassc mpd mpd-mrpis-bin pywal-git python-material-colors-utilities kitty nautilus otf-monaspace-nerd zsh premid-git
 
 curl -sSL https://raw.githubusercontent.com/Duckonaut/hyprload/main/install.sh | bash
 
